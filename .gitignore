@@ -1,0 +1,6 @@
+__pycache__
+config.py
+credentials.json
+*.xlsx
+*.pdf
+*.csv
