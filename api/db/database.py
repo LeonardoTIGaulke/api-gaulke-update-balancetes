@@ -143,7 +143,7 @@ class DatabaseContabilGaulke:
             print("\n\n -------------------------------------------- ")
             print(query_balancete_mensal.info())
 
-        df_all_companies.to_excel("all_companies.xlsx")
+        # df_all_companies.to_excel("all_companies.xlsx")
         return df_all_companies
     # ----
     def get_all_data_google_sheets_periodo_contabil(self):
