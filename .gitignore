@@ -1,6 +1,7 @@
 __pycache__
 config.py
-credentials.json
+config_sheets.py
+*.json
 *.xlsx
 *.pdf
 *.csv

@@ -10,7 +10,7 @@ class DatabaseContabilGaulke:
         self.password = password
         self.host = host
         self.database = database
-    
+    # ----
     def connection_database(self):
         try:
             config = {
@@ -34,21 +34,22 @@ class DatabaseContabilGaulke:
         except:
             print(f" >> DISCONNECT ERROR ")
             return False
-    
-
-
     # ----
     def create_dataframe_all_companies(self, query):
         dict_to_dataframe = {
             "id": list(),
             "cnpj": list(),
-            "razao_social": list()
+            "razao_social": list(),
+            "id_acessorias": list(),
+            "regime": list(),
         }
         try:
             for data in query:
-                dict_to_dataframe["id"].append(           data[0] )
-                dict_to_dataframe["cnpj"].append(         data[1] )
-                dict_to_dataframe["razao_social"].append( data[2] )
+                dict_to_dataframe["id"].append(             data[0] )
+                dict_to_dataframe["cnpj"].append(           data[1] )
+                dict_to_dataframe["razao_social"].append(   data[2] )
+                dict_to_dataframe["id_acessorias"].append(  data[3] )
+                dict_to_dataframe["regime"].append(         data[4] )
 
             df = pd.DataFrame.from_dict(dict_to_dataframe)
             return df
@@ -78,7 +79,6 @@ class DatabaseContabilGaulke:
         except Exception as e:
             print(f"\n\n ### ERROR CONVETER QUERY TO DATAFRAME ALL BALANCETES | ERROR: {e}")
             return None
-
     # ----
     def create_dataframe_base_to_sheets(self, df_all_companies, df_all_balancetes):
         df_all_companies["data_entrega_lancado"] = "-"
@@ -144,9 +144,11 @@ class DatabaseContabilGaulke:
             print(query_balancete_mensal.info())
 
         df_all_companies.to_excel("all_companies.xlsx")
-
-
-
+        return df_all_companies
+    # ----
+    def get_all_data_google_sheets_periodo_contabil(self):
+        pass
+    # ----
     def get_all_data(self, table_name_companies, table_name_balancetes):
         dict_data = dict()
         conn = None
@@ -159,7 +161,7 @@ class DatabaseContabilGaulke:
             print(f"\n #### INFO CONNECTION DATABASE | is_connected: {conn.is_connected()} | db: {conn.database} | connection_id: {conn.connection_id} ### \n")
 
             if conn is not None:
-                comannd_query_all_companies = f"""SELECT id, cnpj, razao_social FROM {table_name_companies};"""
+                comannd_query_all_companies = f"""SELECT id, cnpj, razao_social, id_acessorias, regime  FROM {table_name_companies};"""
                 comannd_query_all_balancetes = f"""SELECT id, obrigacao, cnpj, competencia, data_da_entrega  FROM {table_name_balancetes};"""
 
                 cursor.execute(comannd_query_all_companies)
@@ -189,12 +191,19 @@ class DatabaseContabilGaulke:
                 print(df_all_balancetes)
                 
                 df_to_sheets = self.create_dataframe_base_to_sheets(df_all_companies=df_all_companies, df_all_balancetes=df_all_balancetes)
+                print(df_to_sheets)
                 # print(f"\n ---> TT REGITER: {tt_register}")
-                
+                self.close_connection(object=conn)
+                self.close_connection(object=cursor)
+                return df_to_sheets
         except Exception as e:
             print(f" ### ERROR QUERY ALL DATABASE | ERROR: {e}")
             
+        try:
+            self.close_connection(object=conn)
+            self.close_connection(object=cursor)
+        except:
+            pass
         
-        self.close_connection(object=conn)
-        self.close_connection(object=cursor)
-        return dict_data
+        return None
+    # ----
